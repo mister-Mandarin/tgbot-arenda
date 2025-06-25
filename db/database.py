@@ -10,6 +10,10 @@ def get_connection():
 
 def init_db():
     with get_connection() as conn:
+        '''
+        Таблица пользователей
+        role по плану будет user/admin/manager
+        '''
         conn.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 user_id     BIGINT PRIMARY KEY,
@@ -24,6 +28,10 @@ def init_db():
             );
         """)
 
+        '''
+        Таблица залов
+        alias - уникальное название зала        
+        '''
         conn.execute("""
             CREATE TABLE IF NOT EXISTS halls (
                 name VARCHAR(100) NOT NULL UNIQUE,
@@ -32,13 +40,17 @@ def init_db():
                 description TEXT,
                 capacity SMALLINT,
                 noise_level VARCHAR(20), -- low/medium/high
-                syncToken TEXT NULL
+                syncToken TEXT NULL,
+                last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                
+                     
             );
         """)
 
+        '''Индексы для быстрого поиска'''
         conn.executescript("""
-            CREATE INDEX idx_halls_alias ON halls(alias);
-            CREATE INDEX idx_halls_price ON halls(price_per_hour);
+            CREATE INDEX IF NOT EXISTS idx_halls_alias ON halls(alias);
+            CREATE INDEX IF NOT EXISTS idx_halls_price ON halls(price_per_hour);
         """)
 
         halls_data = [
@@ -59,3 +71,18 @@ def init_db():
             except sqlite3.IntegrityError:
                 # Если запись уже существует - пропускаем
                 continue
+
+        '''
+        Записи залов
+        ON DELETE CASCADE означает, что если зал удаляется из halls, 
+        все связанные с ним события удаляются автоматически.
+        '''
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS records (
+                id TEXT PRIMARY KEY,
+                hall_alias VARCHAR(50) NOT NULL,
+                start_time TEXT NOT NULL,
+                end_time TEXT NOT NULL,
+                FOREIGN KEY (hall_alias) REFERENCES halls(alias) ON DELETE CASCADE
+            );
+        """)
