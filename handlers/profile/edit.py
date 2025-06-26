@@ -3,7 +3,8 @@ from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 from db.user import update_user
 from aiogram.fsm.state import StatesGroup, State
-from keyboards.menu import menu_main, menu_edit_request_contact
+from keyboards.menu import menu_main
+from keyboards.profile import menu_edit_request_contact
 import re
 
 router = Router()

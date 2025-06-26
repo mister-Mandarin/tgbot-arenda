@@ -1,14 +1,14 @@
 import json
 from pathlib import Path
 from db.halls import HallsSync
+from services.helpers import LIST_HALLS
 
-list_alias = ['big120', 'big90', 'medium60', 'small30', 'small16']
 folder = Path('data')
 
 def compare(conn: HallsSync):
     tokens_from_db = conn.get_all_halls_syncToken()
 
-    for alias in list_alias:
+    for alias in (hall['alias'] for hall in LIST_HALLS):
         for file in folder.glob(f'{alias}_*.json'):
             with file.open('r') as json_file:
                 data = json.load(json_file)
