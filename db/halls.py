@@ -31,3 +31,9 @@ class HallsSync:
 
     def delete_records_data(self, alias):
         self.conn.execute("DELETE FROM records WHERE hall_alias = ?", (alias,))
+
+
+def get_halls_time(alias: str, date: str):
+    with get_connection() as conn:
+        cur = conn.execute("SELECT hall_alias, start_time, end_time FROM records WHERE hall_alias = ? AND start_time LIKE ?", (alias, date + '%',))
+        return cur.fetchall()

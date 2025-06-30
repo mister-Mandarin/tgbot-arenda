@@ -1,3 +1,6 @@
+from datetime import timedelta, datetime
+from functools import lru_cache
+
 LIST_HALLS = [
     {
         "name": "Зал 120/Классика",
@@ -30,3 +33,17 @@ LIST_HALLS = [
         "price": 600
     }
 ]
+
+# Кешируем результат чтобы не пересчитывать заново
+@lru_cache(maxsize=256)
+def generate_time_interval(time_start, time_end):
+    slots = []
+    interval = timedelta(minutes=30)
+    
+    while time_start <= time_end:
+        slots.append(time_start.strftime('%H:%M'))
+        time_start += interval
+    return slots
+
+
+FULL_TIME = generate_time_interval(datetime.strptime('10:00', '%H:%M'), datetime.strptime('22:00', '%H:%M'))
