@@ -99,7 +99,7 @@ async def process_date(update: CallbackQuery | Message, state: FSMContext):
 '''
 Выбор зала для бронирования, кнопки
 '''
-@router.message(F.text == "📋 Забронировать зал" or F.text == "✏️ Изменить бронь")
+@router.message(F.text.in_(["📋 Забронировать зал", "✏️ Изменить бронь"]))
 async def show_profile(message: Message, state: FSMContext):
     await message.answer("📋 Начинаю процесс бронирования зала.", reply_markup=ReplyKeyboardRemove())
     await message.answer(f'1/4 🔵⚪⚪⚪\n\nВыберите зал: 👇', reply_markup=menu_hall_check)
@@ -176,7 +176,7 @@ async def handle_time_selected(callback: CallbackQuery, callback_data: SelectTim
 '''
 Обработчик кнопки отмена
 '''
-@router.message(text="❌ Отмена")
+@router.message(F.text == "❌ Отмена")
 async def cancel_handler(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(

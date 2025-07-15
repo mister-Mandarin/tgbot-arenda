@@ -35,6 +35,6 @@ async def on_edit_profile_callback(callback: CallbackQuery):
     await callback.answer()
     await show_profile_edit_menu(callback.from_user.id, callback.bot)
 
-@router.message(text="📋 Редактировать профиль")
+@router.message(F.text == "📋 Редактировать профиль")
 async def on_edit_profile_message(message: Message):
     await show_profile_edit_menu(message.chat.id, message.bot)
