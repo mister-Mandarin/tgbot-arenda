@@ -17,10 +17,10 @@ class GenericCalendar:
 
     def __init__(
         self,
-        locale: str = None,
+        locale: str = 'ru_RU',
         cancel_btn: str = None,
         today_btn: str = None,
-        show_alerts: bool = False
+        show_alerts: bool = True
     ) -> None:
         """Pass labels if you need to have alternative language of buttons
 
@@ -56,8 +56,10 @@ class GenericCalendar:
         date = datetime(int(data.year), int(data.month), int(data.day))
         if self.min_date and self.min_date > date:
             await query.answer(
-                f'The date have to be later {self.min_date.strftime("%d/%m/%Y")}',
-                show_alert=self.show_alerts
+                f'⚠️⚠️⚠️\n'
+                f'Вы пытаетесь выбрать дату раньше чем текущая {self.min_date.strftime("%d/%m/%Y")}.\n\n'
+                f'Путешествия во времени пока не возможны. Пожалуйста выберите другую дату 👇',
+                show_alert=True
             )
             return False, None
         elif self.max_date and self.max_date < date:

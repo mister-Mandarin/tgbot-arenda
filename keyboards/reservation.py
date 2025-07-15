@@ -55,3 +55,28 @@ def menu_hall_time(slots: list[str], is_end: bool = False) -> InlineKeyboardMark
         rows.append(row)
 
     return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+menu_hall_change_date = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="📋 Выбрать другую дату")]
+    ],
+    resize_keyboard=True,
+    input_field_placeholder="Вы можете изменить дату бронирования"
+)
+
+menu_hall_confirm = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="✅ Подтвердить бронирование")],
+        [
+            KeyboardButton(text="✏️ Изменить бронь"),
+            KeyboardButton(text="📋 Редактировать профиль")
+        ],
+        [
+            KeyboardButton(text="❌ Отмена"),
+            #KeyboardButton(text="❓ Помощь")
+        ]
+    ],
+    resize_keyboard=True,
+    input_field_placeholder="Подтвердите данные бронирования"
+)

@@ -23,7 +23,18 @@ async def show_profile(message: Message):
 
     await message.answer(profile_text, reply_markup=menu_edit_profile)
 
-@router.callback_query(F.data == 'edit_profile')
-async def show_requests(callback: CallbackQuery):
-    await callback.answer('')
-    await callback.message.answer("Выберите параметры профиля которые хотите изменить: 👇", reply_markup=menu_edit_profile_fields)
+async def show_profile_edit_menu(chat_id, bot):
+    await bot.send_message(
+        chat_id,
+        "Выберите параметры профиля которые хотите изменить: 👇",
+        reply_markup=menu_edit_profile_fields
+    )
+
+@router.callback_query(F.data == "edit_profile")
+async def on_edit_profile_callback(callback: CallbackQuery):
+    await callback.answer()
+    await show_profile_edit_menu(callback.from_user.id, callback.bot)
+
+@router.message(text="📋 Редактировать профиль")
+async def on_edit_profile_message(message: Message):
+    await show_profile_edit_menu(message.chat.id, message.bot)
