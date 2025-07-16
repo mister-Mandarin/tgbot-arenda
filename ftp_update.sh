@@ -3,8 +3,7 @@ set -a
 source .env
 set +a
 
-LOCAL_PATH="/home/mandarin/tgbot-arenda/data"
-SERVER_PATH="/home/c/ca70594/google_calendar_to_sheets/data"
+rm -f "$LOCAL_PATH"/*
 
 ftp -inv $FTP_HOST <<EOF
 user $FTP_USER $FTP_PASS
