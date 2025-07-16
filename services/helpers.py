@@ -1,5 +1,9 @@
+import os
 from datetime import timedelta, datetime
 from functools import lru_cache
+from dotenv import load_dotenv
+from aiogram.fsm.context import FSMContext
+from typing import Optional
 
 LIST_HALLS = [
     {
@@ -47,3 +51,13 @@ def generate_time_interval(time_start, time_end):
 
 
 FULL_TIME = generate_time_interval(datetime.strptime('10:00', '%H:%M'), datetime.strptime('22:00', '%H:%M'))
+
+load_dotenv()
+ADMIN_IDS = list(map(int, filter(None, (s.strip() for s in os.getenv("LIST_ADMINS", "").split(',')))))
+
+# Переделать на будущее. Циклический импорт
+#ADMIN_DB = get_user_admins()
+
+async def get_state(state: FSMContext, key: Optional[str] = None):
+    data = await state.get_data()
+    return data.get(key) if key is not None else data

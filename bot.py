@@ -7,9 +7,8 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
-from handlers import start
+from handlers import start, reservation
 from handlers.profile import view, edit
-from handlers import reservation
 from db.database import init_db
 from dotenv import load_dotenv
 
@@ -20,6 +19,7 @@ async def main():
     bot = Bot(os.getenv("BOT_TOKEN"), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     dp = Dispatcher()
     dp.include_router(start.router)
+    #dp.include_router(admin.router)
     dp.include_router(view.router)
     dp.include_router(edit.router)
     dp.include_router(reservation.router)

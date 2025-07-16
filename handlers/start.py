@@ -5,6 +5,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.filters import CommandStart
 from keyboards.menu import menu_main
 from handlers.profile.edit import update_phone
+from handlers.admin import start_admin
 
 router = Router()
 
@@ -31,3 +32,5 @@ async def cmd_start(message: Message, state: FSMContext):
             await update_phone(message, state)
         else:
             await message.answer(f"👋 С возвращением, {db_user['first_name']}!", reply_markup=menu_main)
+
+    await start_admin(int(tg_user.id), message)

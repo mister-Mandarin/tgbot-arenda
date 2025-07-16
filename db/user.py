@@ -13,7 +13,7 @@ def create_user(user_id: int, first_name: str, last_name: str | None, username: 
         """, (user_id, first_name, last_name, username,))
 
 def update_user(user_id: int, first_name: str | None = None, last_name: str | None = None,
-                username: str | None = None, phone: str | None = None):
+                username: str | None = None, phone: str | None = None, role: str | None = None):
     fields = []
     values = []
 
@@ -29,6 +29,9 @@ def update_user(user_id: int, first_name: str | None = None, last_name: str | No
     if phone is not None:
         fields.append("phone = ?")
         values.append(phone)
+    if role is not None:
+        fields.append("role = ?")
+        values.append(role)
 
     if not fields:
         raise ValueError("Нет данных для обновления")
@@ -46,3 +49,8 @@ def update_user(user_id: int, first_name: str | None = None, last_name: str | No
     with get_connection() as conn:
         conn.execute(sql, values)
 
+def get_user_admins():
+    with get_connection() as conn:
+        cur = conn.execute("SELECT user_id FROM users WHERE role = ?", ('admin',))
+        rows = cur.fetchall()
+        return [row[0] for row in rows]
