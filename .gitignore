@@ -144,3 +144,4 @@ cython_debug/
 *.sqlite-wal
 *.sqlite-shm
 *.db
+*.service

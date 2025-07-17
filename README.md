@@ -11,7 +11,23 @@ chmod +x ftp_update.sh # выдать права на файл всем поль
 
 # crontab
 crontab -e # открыть crontab
-15 6-23 * * * /home/mandarin/tgbot-arenda/ftp_update.sh
+15 6-23 * * * chmod +x /path/to/ftp_update.sh && /path/to/ftp_update.sh
+```
+
+## Запуск
+```bash
+# tmux
+tmux new -s bot # запуск сессии в tmux
+tmux attach -t bot # вход в сессию
+tmux kill-session -t имя_сессии # удаление сессии
+uv run bot.py >> ./session.log 2>&1 # >> ./session.log — добавляет стандартный вывод (stdout) в файл session.log;
+                                    # 2>&1 — перенаправляет стандартный поток ошибок (stderr) в этот же файл;
+
+# systemd
+sudo cp /path/to/mybot.service /etc/systemd/system/ # копирование systemd-сервиса
+sudo systemctl daemon-reload # перезагрузка демона systemd
+sudo systemctl enable mybot.service # автозапуск сервиса при старте системы
+sudo systemctl start mybot.service # запуск сервиса
 ```
 
 ## Идеи на развитие
