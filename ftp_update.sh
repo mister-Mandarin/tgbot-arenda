@@ -9,8 +9,8 @@ ftp -inv $FTP_HOST <<EOF
 user $FTP_USER $FTP_PASS
 cd $SERVER_PATH
 lcd $LOCAL_PATH
-mget *
+mget *.json
 bye
 EOF
 
-#python -m services.sync
+uv run python -m services.sync
