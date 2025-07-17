@@ -27,10 +27,8 @@ async def cmd_start(message: Message, state: FSMContext):
             f"📱 Чтобы мы могли связаться с вами, пожалуйста укажите номер телефона 👇"
             )
         await update_phone(message, state)
+        return
     else:
-        if not db_user["phone"]:
-            await update_phone(message, state)
-        else:
-            await message.answer(f"👋 С возвращением, {db_user['first_name']}!", reply_markup=menu_main)
+        await message.answer(f"👋 С возвращением, {db_user['first_name']}!", reply_markup=menu_main)
 
     await start_admin(int(tg_user.id), message)

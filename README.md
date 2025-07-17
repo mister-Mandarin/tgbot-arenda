@@ -5,7 +5,7 @@
 ## Команды
 ```bash
 uv run ./bot.py # запуск бота
-python -m services.sync # синхронизация данных с бд
+python3 -m services.sync # синхронизация данных с бд
 ```
 
 ## Идеи на развитие
