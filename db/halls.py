@@ -6,7 +6,7 @@ class HallsSync:
         self.conn.isolation_level = "EXCLUSIVE"
         self.conn.execute("BEGIN EXCLUSIVE")
 
-    def close(self):
+    def close(self) -> None:
         self.conn.commit()
         self.conn.close()
 
@@ -14,10 +14,17 @@ class HallsSync:
         cur = self.conn.execute("SELECT alias, syncToken FROM halls")
         return {alias: syncToken for alias, syncToken in cur.fetchall()}
 
-    def write_halls_syncToken(self, alias, token: str):
-        self.conn.execute("UPDATE halls SET syncToken = ? WHERE alias = ?", (token, alias))
+    def write_halls_syncToken(self, alias: str, token: str):
+        self.conn.execute(
+            """
+            UPDATE halls
+            SET syncToken = ?, last_update = datetime('now', '+3 hours')
+            WHERE alias = ?
+            """,
+            (token, alias)
+        )
 
-    def write_records_data(self, alias: str, items: list[dict]):
+    def write_records_data(self, alias: str, items):
         records = [
             (item["id"], alias, item["start"], item["end"])
             for item in items
@@ -29,7 +36,7 @@ class HallsSync:
             """, records
         )
 
-    def delete_records_data(self, alias):
+    def delete_records_data(self, alias: str):
         self.conn.execute("DELETE FROM records WHERE hall_alias = ?", (alias,))
 
 

@@ -1,3 +1,7 @@
+'''
+Файл синхонизации. 
+Если токены синхронизации отличаются, то данные зала пезаписываются
+'''
 import json
 from pathlib import Path
 from db.halls import HallsSync
@@ -5,7 +9,8 @@ from services.helpers import LIST_HALLS
 
 folder = Path('data')
 
-def compare(conn: HallsSync):
+def compare(conn: HallsSync) -> None:
+    '''Метод сравнеия данных в бд и файлах '''
     tokens_from_db = conn.get_all_halls_syncToken()
 
     for alias in (hall['alias'] for hall in LIST_HALLS):
@@ -19,7 +24,6 @@ def compare(conn: HallsSync):
                     conn.write_halls_syncToken(alias, file_token)
                     conn.delete_records_data(alias)
                     conn.write_records_data(alias, data['items'])
-        
 
 if __name__ == "__main__":
     connection = HallsSync()

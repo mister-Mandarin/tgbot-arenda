@@ -1,11 +1,19 @@
 import os
+from typing import Optional, TypedDict
 from datetime import timedelta, datetime
 from functools import lru_cache
 from dotenv import load_dotenv
 from aiogram.fsm.context import FSMContext
-from typing import Optional
 
-LIST_HALLS = [
+
+class Hall(TypedDict):
+    name: str
+    summary: str
+    alias: str
+    price: int
+
+
+LIST_HALLS: list[Hall] = [
     {
         "name": "Зал 120/Классика",
         "summary": "Зал 120 кв.м. Центр Альфа-Зет м. Достоевская",
@@ -39,21 +47,26 @@ LIST_HALLS = [
 ]
 
 # Кешируем результат чтобы не пересчитывать заново
+
+
 @lru_cache(maxsize=256)
 def generate_time_interval(time_start, time_end):
     slots = []
     interval = timedelta(minutes=30)
-    
+
     while time_start <= time_end:
         slots.append(time_start.strftime('%H:%M'))
         time_start += interval
     return slots
 
 
-FULL_TIME = generate_time_interval(datetime.strptime('10:00', '%H:%M'), datetime.strptime('22:00', '%H:%M'))
+FULL_TIME = generate_time_interval(datetime.strptime(
+    '10:00', '%H:%M'), datetime.strptime('22:00', '%H:%M'))
 
 load_dotenv()
-ADMIN_IDS = list(map(int, filter(None, (s.strip() for s in os.getenv("LIST_ADMINS", "").split(',')))))
+ADMIN_IDS = list(map(int, filter(None, (s.strip()
+                 for s in os.getenv("LIST_ADMINS", "").split(',')))))
+
 
 async def get_state(state: FSMContext, key: Optional[str] = None):
     data = await state.get_data()

@@ -2,24 +2,11 @@ from datetime import timedelta, datetime
 from db.halls import get_halls_time
 from services.helpers import FULL_TIME, generate_time_interval
 
-alias = 'big120'
-date = '2025-06-28'
-asdfsdf = [{
-      "id": "lfcmnnu556e5u13iaao0ssf3n8",
-      "start": "2025-06-28T13:00:00+03:00",
-      "end": "2025-06-28T14:00:00+03:00"
-    },
-    {
-      "id": "cko6adj5ckom4b9nccs66b9kcpij4bb26gp6cbb1c5i3cp9ic5hmcohk64",
-      "start": "2025-06-28T16:00:00+03:00",
-      "end": "2025-06-28T20:00:00+03:00"
-    }]
-
 def generate_buzy_time(alias, date):
     time_start = []
     clear_buzy_time = []
     buzy_time = get_halls_time(alias, date)
-    
+
     for row in buzy_time:
         start = datetime.fromisoformat(row[1]) - timedelta(minutes=30)
         end = datetime.fromisoformat(row[2]) - timedelta(minutes=30)

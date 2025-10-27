@@ -3,6 +3,7 @@ import logging
 import sys
 import os
 
+from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
@@ -11,13 +12,12 @@ from aiogram.methods import DeleteWebhook
 from handlers import start, reservation
 from handlers.profile import view, edit
 from db.database import init_db
-from dotenv import load_dotenv
 
 load_dotenv()
 
 async def main():
     init_db()
-    bot = Bot(os.getenv("BOT_TOKEN"), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    bot = Bot(os.getenv("BOT_TOKEN"), default=DefaultBotProperties(parse_mode=ParseMode.HTML)) # type: ignore
     await bot(DeleteWebhook(drop_pending_updates=True))
 
     dp = Dispatcher()
@@ -40,6 +40,7 @@ if __name__ == "__main__":
             )
         else:
             logging.basicConfig(level=logging.ERROR, stream=sys.stdout)
+        print("Bot started...")
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         print("Bot stopped.")

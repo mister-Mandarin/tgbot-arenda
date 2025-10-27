@@ -11,7 +11,7 @@ chmod +x ftp_update.sh # выдать права на файл всем поль
 
 # crontab
 crontab -e # открыть crontab
-15 6-23 * * * chmod +x /path/to/ftp_update.sh && /path/to/ftp_update.sh
+15 6-23 * * * chmod +x /path/to/ftp_update.sh >> /path/to/crontab.log 2>&1 # 2>&1 — перенаправляет стандартный поток ошибок (stderr) в этот же файл;
 ```
 
 ## Запуск
