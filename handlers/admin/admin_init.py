@@ -27,11 +27,9 @@ async def notify_admins(state: FSMContext, bot: Bot):
     text = await get_state(state, "reservation_text")
 
     text_message = (
-        '''
-        📢🆕✨ Новая бронь! ✨🆕📢\n\n
-        📅 Время заявки: {now} 📅\n\n
-        {text}
-        '''
+        f'📢🆕✨ Новая бронь! ✨🆕📢\n\n'
+        f'📅 Время заявки: {now} 📅\n\n'
+        f'{text}'
     )
 
     for admin_id in ADMIN_IDS:
