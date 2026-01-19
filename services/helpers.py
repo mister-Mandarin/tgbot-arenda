@@ -49,7 +49,7 @@ LIST_HALLS: list[Hall] = [
 # Кешируем результат чтобы не пересчитывать заново
 
 
-@lru_cache(maxsize=256)
+#@lru_cache(maxsize=256)
 def generate_time_interval(time_start, time_end):
     slots = []
     interval = timedelta(minutes=30)

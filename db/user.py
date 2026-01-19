@@ -49,8 +49,13 @@ def update_user(user_id: int, first_name: str | None = None, last_name: str | No
     with get_connection() as conn:
         conn.execute(sql, values)
 
-def get_user_admins():
+def count_users():
     with get_connection() as conn:
-        cur = conn.execute("SELECT user_id FROM users WHERE role = ?", ('admin',))
-        rows = cur.fetchall()
-        return [row[0] for row in rows]
+        cur = conn.execute("SELECT COUNT(*) FROM users")
+        return cur.fetchone()[0]
+    
+# def get_user_admins():
+#     with get_connection() as conn:
+#         cur = conn.execute("SELECT user_id FROM users WHERE role = ?", ('admin',))
+#         rows = cur.fetchall()
+#         return [row[0] for row in rows]

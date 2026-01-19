@@ -18,6 +18,7 @@ router = Router()
 now = datetime.now()
 _calendar_cache: dict[date, InlineKeyboardMarkup] = {}
 
+
 class StateReservation(StatesGroup):
     hall = State()
     date = State()
@@ -28,27 +29,28 @@ class StateReservation(StatesGroup):
     time_end = State()
     reservation_text = State()
 
-'''
-Свободное время начала
-'''
+
 async def process_time_start(callback: CallbackQuery, state: FSMContext):
+    '''Свободное время начала'''
     data = await get_state(state, 'free_time_start')
     await callback.message.answer((
-                            f'3/4 🔵🔵🔵⚪\n\n'
-                            f'Время вам подбирается автоматически с учётом следующих условий:\n'
-                            f'Минимальная продолжительность бронирования 1 час. 🕐\n'
-                            f'Центр работа с 10:00 до 22:00 каждый день.\n'
-                            f'В одном зале в одно время может проходить только одно мероприятие.\n'
-                            f'Выберите свободное время начала мероприятия 👇\n'
-                        ), reply_markup = menu_hall_time(data))
+        f'3/4 🔵🔵🔵⚪\n\n'
+        f'Время вам подбирается автоматически с учётом следующих условий:\n'
+        f'Минимальная продолжительность бронирования 1 час. 🕐\n'
+        f'Центр работа с 10:00 до 22:00 каждый день.\n'
+        f'В одном зале в одно время может проходить только одно мероприятие.\n'
+        f'Выберите свободное время начала мероприятия 👇\n'
+    ), reply_markup=menu_hall_time(data))
+
 
 async def process_time_end(callback: CallbackQuery, state: FSMContext):
-    data = await get_state(state,'free_time_end')
+    data = await get_state(state, 'free_time_end')
     await callback.message.answer((
-                            f'4/4 🔵🔵🔵🔵\n\n'
-                            f'Выберите дату окончания мероприятия 👇'
-                        ), reply_markup=menu_hall_time(data, is_end=True))
+        f'4/4 🔵🔵🔵🔵\n\n'
+        f'Выберите дату окончания мероприятия 👇'
+    ), reply_markup=menu_hall_time(data, is_end=True))
     await state.set_state(StateReservation.time_end)
+
 
 async def show_reservation_summary(callback: CallbackQuery, state: FSMContext):
     data = await get_state(state)
@@ -71,10 +73,9 @@ async def show_reservation_summary(callback: CallbackQuery, state: FSMContext):
     await state.update_data(reservation_text=text)
     await callback.message.answer(text, parse_mode="HTML", reply_markup=menu_hall_confirm)
 
-'''
-Формирование клавиатуры с датами
-'''
+
 async def calendar_markup() -> InlineKeyboardMarkup:
+    '''Формирование клавиатуры с датами'''
     today = date.today()
 
     if today in _calendar_cache:
@@ -84,12 +85,11 @@ async def calendar_markup() -> InlineKeyboardMarkup:
     _calendar_cache[today] = calendar
 
     return calendar
-    
-'''
-Выбор даты. Календарь
-'''
+
+
 @router.message(F.text == "📋 Выбрать другую дату")
 async def process_date(update: CallbackQuery | Message, state: FSMContext):
+    '''Выбор даты. Календарь'''
     calendar = await calendar_markup()
 
     if isinstance(update, Message):
@@ -97,12 +97,14 @@ async def process_date(update: CallbackQuery | Message, state: FSMContext):
 
     if isinstance(update, CallbackQuery):
         await update.message.answer(f'2/4 🔵🔵⚪⚪\n\nВыберите дату: ', reply_markup=calendar)
-    
+
     await state.set_state(StateReservation.date)
 
 '''
 Выбор зала для бронирования, кнопки
 '''
+
+
 @router.message(F.text.in_(["📋 Забронировать зал", "✏️ Изменить бронь"]))
 async def show_profile(message: Message, state: FSMContext):
     await message.answer("📋 Начинаю процесс бронирования зала.", reply_markup=ReplyKeyboardRemove())
@@ -112,6 +114,8 @@ async def show_profile(message: Message, state: FSMContext):
 '''
 Запись выбранного зала
 '''
+
+
 @router.callback_query(F.data.startswith("check_"))
 async def choose_hall(callback: CallbackQuery, state: FSMContext):
     hall_alias = callback.data.replace("check_", "")
@@ -125,18 +129,22 @@ async def choose_hall(callback: CallbackQuery, state: FSMContext):
 '''
 Обработка выбранной даты.
 '''
+
+
 @router.callback_query(SimpleCalendarCallback.filter())
 async def process_simple_calendar(callback_query: CallbackQuery, callback_data: CallbackData, state: FSMContext):
     calendar = SimpleCalendar()
 
-    calendar.set_dates_range(datetime.now(), datetime(now.year + 1, now.month, now.day))
+    calendar.set_dates_range(datetime.now(), datetime(
+        now.year + 1, now.month, now.day))
     selected, selected_date = await calendar.process_selection(callback_query, callback_data)
 
     if selected:
         data = await get_state(state, "hall")
 
         date = selected_date.strftime("%Y-%m-%d")
-        free_time_start, clear_buzy_time = generate_free_time_start(data["alias"], date)
+        free_time_start, clear_buzy_time = generate_free_time_start(
+            data["alias"], date)
 
         if len(free_time_start) == 0:
             await callback_query.answer(
@@ -151,11 +159,12 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
                 reply_markup=calendar
             )
             return
-        
+
         await state.update_data(date=date)
         await callback_query.message.answer(f'✅ Дата мероприятия: {date}', reply_markup=menu_hall_change_date)
         await state.update_data(free_time_start=free_time_start, clear_buzy_time=clear_buzy_time)
         await process_time_start(callback_query, state)
+
 
 @router.callback_query(SelectTimeStartCallback.filter())
 async def handle_time_selected(callback: CallbackQuery, callback_data: SelectTimeStartCallback, state: FSMContext):
@@ -170,6 +179,7 @@ async def handle_time_selected(callback: CallbackQuery, callback_data: SelectTim
     await callback.message.answer(f"✅ Вы выбрали время начала: {selected_time}")
     await process_time_end(callback, state)
 
+
 @router.callback_query(SelectTimeEndCallback.filter())
 async def handle_time_selected(callback: CallbackQuery, callback_data: SelectTimeEndCallback, state: FSMContext):
     selected_time = callback_data.value.replace("-", ":")
@@ -181,6 +191,8 @@ async def handle_time_selected(callback: CallbackQuery, callback_data: SelectTim
 '''
 Обработчик кнопки отмена
 '''
+
+
 @router.message(F.text == "❌ Отмена")
 async def cancel_handler(message: Message, state: FSMContext):
     await state.clear()
@@ -194,6 +206,8 @@ async def cancel_handler(message: Message, state: FSMContext):
 Обработчик подтверждения бронирования
 и уведомления админов
 '''
+
+
 @router.message(F.text == "✅ Подтвердить бронирование")
 async def confirm_reservation(message: Message, state: FSMContext):
     await message.answer(

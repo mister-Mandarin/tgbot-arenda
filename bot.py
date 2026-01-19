@@ -9,20 +9,29 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.methods import DeleteWebhook
 
-from handlers import start, reservation
+from handlers import start, reservation, admin
 from handlers.profile import view, edit
 from db.database import init_db
 
 load_dotenv()
 
+
 async def main():
     init_db()
-    bot = Bot(os.getenv("BOT_TOKEN"), default=DefaultBotProperties(parse_mode=ParseMode.HTML)) # type: ignore
+
+    token = os.getenv("BOT_TOKEN")
+
+    if not token:
+        logging.error("BOT_TOKEN не найден в переменных окружения")
+        sys.exit(1)
+
+    bot = Bot(token, default=DefaultBotProperties(
+        parse_mode=ParseMode.HTML))
     await bot(DeleteWebhook(drop_pending_updates=True))
 
     dp = Dispatcher()
     dp.include_router(start.router)
-    #dp.include_router(admin.router)
+    dp.include_router(admin.admin_router)
     dp.include_router(view.router)
     dp.include_router(edit.router)
     dp.include_router(reservation.router)
