@@ -4,10 +4,12 @@ from services.helpers import LIST_HALLS
 
 DB_PATH = Path("data.sqlite3")
 
+
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
+
 
 def init_db():
     with get_connection() as conn:
@@ -31,7 +33,7 @@ def init_db():
 
         '''
         Таблица залов
-        alias - уникальное название зала        
+        alias - уникальное название зала
         '''
         conn.execute("""
             CREATE TABLE IF NOT EXISTS halls (
@@ -51,7 +53,7 @@ def init_db():
         try:
             conn.executemany("""
                 INSERT INTO halls (alias) VALUES (?)    
-            """, halls)    
+            """, halls)
         except sqlite3.IntegrityError:
             # Если запись уже существует - пропускаем
             pass
@@ -70,3 +72,10 @@ def init_db():
                 FOREIGN KEY (hall_alias) REFERENCES halls(alias) ON DELETE CASCADE
             );
         """)
+
+        '''Тихая миграция'''
+        try:
+            conn.execute(
+                "ALTER TABLE users ADD COLUMN notifications BOOLEAN NOT NULL DEFAULT TRUE;")
+        except Exception:
+            pass

@@ -9,7 +9,8 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.methods import DeleteWebhook
 
-from handlers import start, reservation, admin
+from handlers import start, reservation
+from handlers.admin import admin_init, admin_broadcast
 from handlers.profile import view, edit
 from db.database import init_db
 
@@ -31,7 +32,8 @@ async def main():
 
     dp = Dispatcher()
     dp.include_router(start.router)
-    dp.include_router(admin.admin_router)
+    dp.include_router(admin_init.admin_router)
+    dp.include_router(admin_broadcast.admin_router)
     dp.include_router(view.router)
     dp.include_router(edit.router)
     dp.include_router(reservation.router)

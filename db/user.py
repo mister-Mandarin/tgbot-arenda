@@ -1,9 +1,11 @@
 from db.database import get_connection
 
+
 def get_user(user_id: int):
     with get_connection() as conn:
         cur = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
         return cur.fetchone()
+
 
 def create_user(user_id: int, first_name: str, last_name: str | None, username: str | None):
     with get_connection() as conn:
@@ -11,6 +13,7 @@ def create_user(user_id: int, first_name: str, last_name: str | None, username: 
             INSERT INTO users (user_id, first_name, last_name, username, phone)
             VALUES (?, ?, ?, ?, '')
         """, (user_id, first_name, last_name, username,))
+
 
 def update_user(user_id: int, first_name: str | None = None, last_name: str | None = None,
                 username: str | None = None, phone: str | None = None, role: str | None = None):
@@ -49,13 +52,24 @@ def update_user(user_id: int, first_name: str | None = None, last_name: str | No
     with get_connection() as conn:
         conn.execute(sql, values)
 
-def count_users():
+
+def get_count_users():
     with get_connection() as conn:
-        cur = conn.execute("SELECT COUNT(*) FROM users")
-        return cur.fetchone()[0]
-    
-# def get_user_admins():
-#     with get_connection() as conn:
-#         cur = conn.execute("SELECT user_id FROM users WHERE role = ?", ('admin',))
-#         rows = cur.fetchall()
-#         return [row[0] for row in rows]
+        cur = conn.execute(
+            """
+                SELECT 
+                    COUNT(*) as total,
+                    SUM(CASE WHEN role = 'admin' THEN 1 ELSE 0 END) as admins,
+                    SUM(CASE WHEN active = 0 THEN 1 ELSE 0 END) as inactive
+                FROM users
+            """)
+
+        row = cur.fetchone()
+        return row['total'], row['admins'], row['inactive']
+
+
+def get_all_users():
+    with get_connection() as conn:
+        cur = conn.execute("SELECT user_id FROM users")
+        rows = cur.fetchall()
+        return [row[0] for row in rows]
