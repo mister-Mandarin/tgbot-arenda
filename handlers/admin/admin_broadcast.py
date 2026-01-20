@@ -74,11 +74,12 @@ async def send_message_safe(bot: Bot, user_id: int, msg_id: int, chat_id: int) -
     try:
         await bot.copy_message(chat_id=user_id, from_chat_id=chat_id, message_id=msg_id)
         return True
-    except AiogramError:
-        logging.error("Ну удалось отправить сообщение %s", {AiogramError})
+    except AiogramError as e:
+        logging.error("Ну удалось отправить сообщение %s", {e})
         await bot.send_message(
-            chat_id=271737651, text=f'[ERROR]: {user_id} {AiogramError}'
+            chat_id=271737651, text=f'[ERROR]: {user_id} {e}'
         )
+        await asyncio.sleep(0.3)
 
     return False
 
