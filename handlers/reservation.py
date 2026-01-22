@@ -94,10 +94,10 @@ async def process_date(update: CallbackQuery | Message, state: FSMContext):
     calendar = await calendar_markup()
 
     if isinstance(update, Message):
-        await update.answer(f'2/4 🔵🔵⚪⚪\n\nВыберите дату: ', reply_markup=calendar)
+        await update.answer('2/4 🔵🔵⚪⚪\n\nВыберите дату: ', reply_markup=calendar)
 
     if isinstance(update, CallbackQuery):
-        await update.message.answer(f'2/4 🔵🔵⚪⚪\n\nВыберите дату: ', reply_markup=calendar)
+        await update.message.answer('2/4 🔵🔵⚪⚪\n\nВыберите дату: ', reply_markup=calendar)
 
     await state.set_state(StateReservation.date)
 
@@ -106,7 +106,7 @@ async def process_date(update: CallbackQuery | Message, state: FSMContext):
 async def show_profile(message: Message, state: FSMContext):
     '''Выбор зала для бронирования, кнопки'''
     await message.answer("📋 Начинаю процесс бронирования зала.", reply_markup=ReplyKeyboardRemove())
-    await message.answer(f'1/4 🔵⚪⚪⚪\n\nВыберите зал: 👇', reply_markup=menu_hall_check)
+    await message.answer('1/4 🔵⚪⚪⚪\n\nВыберите зал: 👇', reply_markup=menu_hall_check)
     await state.set_state(StateReservation.hall)
 
 
@@ -140,14 +140,14 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
 
         if len(free_time_start) == 0:
             await callback_query.answer(
-                f'⚠️⚠️⚠️\n'
-                f'Упс... На эти даты свободных мест нет.\n\n'
-                f'Пожалуйста выберите другую дату 👇',
+                '⚠️⚠️⚠️\n'
+                'Упс... На эти даты свободных мест нет.\n\n'
+                'Пожалуйста выберите другую дату 👇',
                 show_alert=True
             )
             calendar = await calendar_markup()
             await callback_query.message.edit_text(
-                f'2/4 🔵🔵⚪⚪\n\nПожалуйста выберите другую дату:',
+                '2/4 🔵🔵⚪⚪\n\nПожалуйста выберите другую дату:',
                 reply_markup=calendar
             )
             return
@@ -159,7 +159,7 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
 
 
 @router.callback_query(SelectTimeStartCallback.filter())
-async def handle_time_selected(callback: CallbackQuery, callback_data: SelectTimeStartCallback, state: FSMContext):
+async def handle_time_selected_start(callback: CallbackQuery, callback_data: SelectTimeStartCallback, state: FSMContext):
     selected_time = callback_data.value.replace("-", ":")
     await state.update_data(time_start=selected_time)
 
@@ -173,7 +173,7 @@ async def handle_time_selected(callback: CallbackQuery, callback_data: SelectTim
 
 
 @router.callback_query(SelectTimeEndCallback.filter())
-async def handle_time_selected(callback: CallbackQuery, callback_data: SelectTimeEndCallback, state: FSMContext):
+async def handle_time_selected_end(callback: CallbackQuery, callback_data: SelectTimeEndCallback, state: FSMContext):
     selected_time = callback_data.value.replace("-", ":")
     await state.update_data(time_end=selected_time)
     await callback.message.edit_reply_markup(reply_markup=None)

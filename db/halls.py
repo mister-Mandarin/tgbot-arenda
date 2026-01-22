@@ -1,5 +1,6 @@
 from db.database import get_connection
 
+
 class HallsSync:
     def __init__(self):
         self.conn = get_connection()
@@ -21,19 +22,17 @@ class HallsSync:
             SET syncToken = ?, last_update = datetime('now', '+3 hours')
             WHERE alias = ?
             """,
-            (token, alias)
+            (token, alias),
         )
 
     def write_records_data(self, alias: str, items):
-        records = [
-            (item["id"], alias, item["start"], item["end"])
-            for item in items
-        ]
+        records = [(item["id"], alias, item["start"], item["end"]) for item in items]
         self.conn.executemany(
             """
             INSERT INTO records (id, hall_alias, start_time, end_time)
             VALUES (?, ?, ?, ?)
-            """, records
+            """,
+            records,
         )
 
     def delete_records_data(self, alias: str):
@@ -42,5 +41,11 @@ class HallsSync:
 
 def get_halls_time(alias: str, date: str):
     with get_connection() as conn:
-        cur = conn.execute("SELECT hall_alias, start_time, end_time FROM records WHERE hall_alias = ? AND start_time LIKE ?", (alias, date + '%',))
+        cur = conn.execute(
+            "SELECT hall_alias, start_time, end_time FROM records WHERE hall_alias = ? AND start_time LIKE ?",
+            (
+                alias,
+                date + "%",
+            ),
+        )
         return cur.fetchall()

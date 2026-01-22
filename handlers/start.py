@@ -1,11 +1,12 @@
 from aiogram import Router
-from aiogram.types import Message
-from db.user import get_user, create_user
-from aiogram.fsm.context import FSMContext
 from aiogram.filters import CommandStart
-from keyboards.menu import menu_main
-from handlers.profile.edit import update_phone
+from aiogram.fsm.context import FSMContext
+from aiogram.types import Message
+
+from db.user import create_user, get_user
 from handlers.admin.admin_init import start_admin
+from handlers.profile.edit import update_phone
+from keyboards.menu import menu_main
 from services.helpers import ADMIN_IDS
 
 router = Router()
@@ -25,7 +26,7 @@ async def cmd_start(message: Message, state: FSMContext):
             user_id=tg_user.id,
             first_name=tg_user.first_name or "",
             last_name=tg_user.last_name,
-            username=tg_user.username
+            username=tg_user.username,
         )
 
         await message.answer(
@@ -34,7 +35,9 @@ async def cmd_start(message: Message, state: FSMContext):
         )
         await update_phone(message, state)
     else:
-        await message.answer(f"👋 С возвращением, {db_user['first_name']}!", reply_markup=menu_main)
+        await message.answer(
+            f"👋 С возвращением, {db_user['first_name']}!", reply_markup=menu_main
+        )
 
     if tg_user.id in ADMIN_IDS:
         await start_admin(tg_user.id, message)

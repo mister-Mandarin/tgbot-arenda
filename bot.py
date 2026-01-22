@@ -1,18 +1,18 @@
 import asyncio
 import logging
-import sys
 import os
+import sys
 
-from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.methods import DeleteWebhook
+from dotenv import load_dotenv
 
-from handlers import start, reservation
-from handlers.admin import admin_init, admin_broadcast
-from handlers.profile import view, edit
 from db.database import init_db
+from handlers import reservation, start
+from handlers.admin import admin_broadcast, admin_init
+from handlers.profile import edit, view
 
 load_dotenv()
 
@@ -26,8 +26,7 @@ async def main():
         logging.error("BOT_TOKEN не найден в переменных окружения")
         sys.exit(1)
 
-    bot = Bot(token, default=DefaultBotProperties(
-        parse_mode=ParseMode.HTML))
+    bot = Bot(token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     await bot(DeleteWebhook(drop_pending_updates=True))
 
     dp = Dispatcher()
@@ -40,6 +39,7 @@ async def main():
 
     await dp.start_polling(bot)
 
+
 if __name__ == "__main__":
     try:
         if os.getenv("APP_ENV") == "dev":
@@ -47,7 +47,7 @@ if __name__ == "__main__":
                 level=logging.INFO,
                 stream=sys.stdout,
                 format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-                datefmt="%Y-%m-%d %H:%M:%S"
+                datefmt="%Y-%m-%d %H:%M:%S",
             )
         else:
             logging.basicConfig(level=logging.ERROR, stream=sys.stdout)

@@ -1,5 +1,6 @@
 import sqlite3
 from pathlib import Path
+
 from services.helpers import LIST_HALLS
 
 DB_PATH = Path("data.sqlite3")
@@ -13,10 +14,8 @@ def get_connection():
 
 def init_db():
     with get_connection() as conn:
-        '''
-        Таблица пользователей
-        role по плану будет user/admin/manager
-        '''
+        # Таблица пользователей
+        # role по плану будет user/admin/manager
         conn.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 user_id     BIGINT PRIMARY KEY,
@@ -31,10 +30,8 @@ def init_db():
             );
         """)
 
-        '''
-        Таблица залов
-        alias - уникальное название зала
-        '''
+        # Таблица залов
+        # alias - уникальное название зала
         conn.execute("""
             CREATE TABLE IF NOT EXISTS halls (
                 alias VARCHAR(50) PRIMARY KEY,
@@ -43,26 +40,27 @@ def init_db():
             );
         """)
 
-        '''Индексы для быстрого поиска'''
+        # Индексы для быстрого поиска
         conn.execute("""
             CREATE INDEX IF NOT EXISTS idx_halls_alias ON halls(alias);
         """)
 
-        halls = [(hall['alias'],) for hall in LIST_HALLS]
+        halls = [(hall["alias"],) for hall in LIST_HALLS]
 
         try:
-            conn.executemany("""
+            conn.executemany(
+                """
                 INSERT INTO halls (alias) VALUES (?)    
-            """, halls)
+            """,
+                halls,
+            )
         except sqlite3.IntegrityError:
             # Если запись уже существует - пропускаем
             pass
 
-        '''
-        Записи залов
-        ON DELETE CASCADE означает, что если зал удаляется из halls, 
-        все связанные с ним события удаляются автоматически.
-        '''
+        # Записи залов
+        # ON DELETE CASCADE означает, что если зал удаляется из halls,
+        # все связанные с ним события удаляются автоматически.
         conn.execute("""
             CREATE TABLE IF NOT EXISTS records (
                 id TEXT PRIMARY KEY,
@@ -73,9 +71,10 @@ def init_db():
             );
         """)
 
-        '''Тихая миграция'''
+        # Тихая миграция
         try:
             conn.execute(
-                "ALTER TABLE users ADD COLUMN notifications BOOLEAN NOT NULL DEFAULT TRUE;")
+                "ALTER TABLE users ADD COLUMN notifications BOOLEAN NOT NULL DEFAULT TRUE;"
+            )
         except Exception:
             pass

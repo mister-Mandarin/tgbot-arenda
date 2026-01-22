@@ -7,16 +7,32 @@ def get_user(user_id: int):
         return cur.fetchone()
 
 
-def create_user(user_id: int, first_name: str, last_name: str | None, username: str | None):
+def create_user(
+    user_id: int, first_name: str, last_name: str | None, username: str | None
+):
     with get_connection() as conn:
-        conn.execute("""
+        conn.execute(
+            """
             INSERT INTO users (user_id, first_name, last_name, username, phone)
             VALUES (?, ?, ?, ?, '')
-        """, (user_id, first_name, last_name, username,))
+        """,
+            (
+                user_id,
+                first_name,
+                last_name,
+                username,
+            ),
+        )
 
 
-def update_user(user_id: int, first_name: str | None = None, last_name: str | None = None,
-                username: str | None = None, phone: str | None = None, role: str | None = None):
+def update_user(
+    user_id: int,
+    first_name: str | None = None,
+    last_name: str | None = None,
+    username: str | None = None,
+    phone: str | None = None,
+    role: str | None = None,
+):
     fields = []
     values = []
 
@@ -43,7 +59,7 @@ def update_user(user_id: int, first_name: str | None = None, last_name: str | No
 
     sql = f"""
         UPDATE users
-        SET {', '.join(fields)}
+        SET {", ".join(fields)}
         WHERE user_id = ?
     """
 
@@ -62,10 +78,11 @@ def get_count_users():
                     SUM(CASE WHEN role = 'admin' THEN 1 ELSE 0 END) as admins,
                     SUM(CASE WHEN active = 0 THEN 1 ELSE 0 END) as inactive
                 FROM users
-            """)
+            """
+        )
 
         row = cur.fetchone()
-        return row['total'], row['admins'], row['inactive']
+        return row["total"], row["admins"], row["inactive"]
 
 
 def get_all_users():
