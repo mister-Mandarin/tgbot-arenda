@@ -11,5 +11,5 @@ class SelectTimeEndCallback(CallbackData, prefix="select_time_end"):
 
 
 class BroadcastState(StatesGroup):
-    waiting_for_input = State()       # Ждем текст/фото
-    waiting_for_confirm = State()     # Ждем нажатия кнопки
+    waiting_for_input = State()  # Ждем текст/фото
+    waiting_for_confirm = State()  # Ждем нажатия кнопки

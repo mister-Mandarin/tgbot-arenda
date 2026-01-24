@@ -1,6 +1,6 @@
 import re
 
-from aiogram import F, Router
+from aiogram import Bot, F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove
@@ -29,19 +29,30 @@ class StateEditProfile(StatesGroup):
 
 
 @router.callback_query(F.data == "edit_first_name")
-async def edit_first_name(callback: CallbackQuery, state: FSMContext):
+async def edit_first_name(callback: CallbackQuery, state: FSMContext, bot: Bot):
     await state.set_state(StateEditProfile.first_name)
-    await callback.message.answer(
-        "Введите новое имя:", reply_markup=ReplyKeyboardRemove()
+    await bot.send_message(
+        callback.from_user.id, "Введите новое имя:", reply_markup=ReplyKeyboardRemove()
     )
     await callback.answer()
 
 
 @router.message(StateEditProfile.first_name)
 async def save_first_name(message: Message, state: FSMContext):
-    update_user(user_id=message.from_user.id, first_name=message.text.strip())
-    await state.clear()
-    await message.answer("Имя обновлено \u2705", reply_markup=menu_main)
+    if not message.text or not message.text.strip():
+        await message.answer("\u274c Имя не может быть пустым. Повторите ввод.")
+        return
+
+    if len(message.text.strip()) > 10:
+        await message.answer(
+            "\u274c Имя слишком длинное. Максимум 10 символов. Повторите ввод."
+        )
+        return
+
+    if message.from_user:
+        await update_user(user_id=message.from_user.id, first_name=message.text.strip())
+        await state.clear()
+        await message.answer("Имя обновлено \u2705", reply_markup=menu_main)
 
 
 @router.callback_query(F.data == "edit_last_name")
@@ -55,7 +66,7 @@ async def edit_last_name(callback: CallbackQuery, state: FSMContext):
 
 @router.message(StateEditProfile.last_name)
 async def save_last_name(message: Message, state: FSMContext):
-    update_user(user_id=message.from_user.id, last_name=message.text.strip())
+    await update_user(user_id=message.from_user.id, last_name=message.text.strip())
     await state.clear()
     await message.answer("Фамилия обновлена \u2705", reply_markup=menu_main)
 
@@ -68,7 +79,7 @@ async def update_username(callback: CallbackQuery):
             "\u274c Не удалось получить username из Telegram."
         )
     else:
-        update_user(user_id=callback.from_user.id, username=username)
+        await update_user(user_id=callback.from_user.id, username=username)
         await callback.message.answer("Никнейм обновлён \u2705", reply_markup=menu_main)
     await callback.answer()
 
@@ -102,45 +113,7 @@ async def save_phone(message: Message, state: FSMContext):
         await message.answer("\u274c Неверный формат номера. Повторите ввод.")
         return
 
-    update_user(user_id=message.from_user.id, phone=phone)
+    await update_user(user_id=message.from_user.id, phone=phone)
     await state.clear()
     await message.answer("Телефон обновлён \u2705", reply_markup=menu_main)
 
-
-# @router.callback_query(F.data == "edit_all")
-# async def edit_all_fields(callback: CallbackQuery, state: FSMContext):
-#     await state.set_state(EditProfile.first_name)
-#     await callback.message.answer("Введите имя:")
-#     await callback.answer()
-
-
-# @router.message(EditProfile.first_name)
-# async def edit_all_step1(message: Message, state: FSMContext):
-#     await state.update_data(first_name=message.text.strip())
-#     await state.set_state(EditProfile.last_name)
-#     await message.answer("Введите фамилию:")
-
-
-# @router.message(EditProfile.last_name)
-# async def edit_all_step2(message: Message, state: FSMContext):
-#     await state.update_data(last_name=message.text.strip())
-#     await state.set_state(EditProfile.phone)
-#     await message.answer("Введите номер телефона:")
-
-
-# @router.message(EditProfile.phone)
-# async def edit_all_step3(message: Message, state: FSMContext):
-#     await state.update_data(phone=message.text.strip())
-#     username = message.from_user.username
-#     data = await state.get_data()
-
-#     update_user(
-#         user_id=message.from_user.id,
-#         first_name=data.get("first_name"),
-#         last_name=data.get("last_name"),
-#         phone=data.get("phone"),
-#         username=username
-#     )
-
-#     await state.clear()
-#     await message.answer("Профиль полностью обновлён \u2705")

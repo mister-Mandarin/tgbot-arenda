@@ -1,4 +1,5 @@
 from db.database import get_connection
+from services.helpers import run_in_thread
 
 
 class HallsSync:
@@ -39,6 +40,7 @@ class HallsSync:
         self.conn.execute("DELETE FROM records WHERE hall_alias = ?", (alias,))
 
 
+@run_in_thread
 def get_halls_time(alias: str, date: str):
     with get_connection() as conn:
         cur = conn.execute(

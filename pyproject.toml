@@ -1,10 +1,11 @@
 [project]
 name = "tgbot-arenda"
-version = "1.2.20"
+version = "2.1.15"
 description = "My bot"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "aiogram>=3.20.0.post0",
+    "cachetools>=6.2.4",
     "python-dotenv>=1.1.1",
 ]

@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from datetime import datetime
 
 from aiogram import Bot, F, Router
 from aiogram.exceptions import AiogramError
@@ -7,7 +8,7 @@ from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove
 
-from db.user import get_all_users
+from db.user import get_users_for_broadcast, set_user_active_false
 from handlers.callback_factory import BroadcastState
 from keyboards.admin import menu_admin_broadcast, menu_admin_cancel
 from keyboards.menu import menu_main
@@ -56,7 +57,7 @@ async def process_broadcast(message: Message, state: FSMContext):
 
     await message.reply(
         "<b>👁️ Предпросмотр рассылки</b>\n\n"
-        "Выше — ваше сообщение в том виде, в котором его получат юзеры. Отправляем?",
+        "Выше — ваше сообщение в том виде, в котором его получат пользователи. Отправляем?",
         reply_markup=menu_admin_broadcast,
     )
 
@@ -79,13 +80,14 @@ async def change_message(callback: CallbackQuery, state: FSMContext, bot: Bot):
 
 
 async def send_message_safe(bot: Bot, user_id: int, msg_id: int, chat_id: int) -> bool:
-    """Отправка сообщения с обработкой типичных ошибок"""
+    """Отправка сообщения с обработкой ошибок"""
     try:
         await bot.copy_message(chat_id=user_id, from_chat_id=chat_id, message_id=msg_id)
         return True
     except AiogramError as e:
         logging.error("Ну удалось отправить сообщение %s", {e})
         await bot.send_message(chat_id=271737651, text=f"[ERROR]: {user_id} {e}")
+        await set_user_active_false(user_id)
         await asyncio.sleep(0.3)
 
     return False
@@ -118,18 +120,18 @@ async def confirm_send(callback: CallbackQuery, state: FSMContext, bot: Bot):
         )
         await bot.send_message(
             chat_id=callback.from_user.id,
-            text="⏳ <b>Рассылка запущена...</b>",
+            text=f"⏳ [{datetime.now().replace(microsecond=0)}] <b>Рассылка запущена...</b>",
             reply_markup=None,
         )
         await callback.answer()
 
-    users_ids = await asyncio.to_thread(get_all_users)
+    users_ids = await get_users_for_broadcast()
 
     count = await go_broadcast(bot, users_ids, msg_id, chat_id)
 
     await bot.send_message(
         chat_id=callback.from_user.id,
-        text=f"✅ <b>Рассылка завершена!</b>\nПолучили: {count} чел.",
+        text=f"✅ [{datetime.now().replace(microsecond=0)}] <b>Рассылка завершена!</b>\nПолучили: {count} пользователей.",
         reply_markup=menu_main,
     )
     await state.clear()

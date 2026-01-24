@@ -1,6 +1,8 @@
+import asyncio
+import functools
 import os
 from datetime import datetime, timedelta
-from typing import Optional, TypedDict
+from typing import Any, Callable, Coroutine, Optional, TypedDict, TypeVar
 
 from aiogram.fsm.context import FSMContext
 from dotenv import load_dotenv
@@ -73,3 +75,33 @@ ADMIN_IDS = list(
 async def get_state(state: FSMContext, key: Optional[str] = None):
     data = await state.get_data()
     return data.get(key) if key is not None else data
+
+
+P = Any  # Параметры
+R = TypeVar("R")  # Результат
+
+
+def run_in_thread(func: Callable[..., R]) -> Callable[..., Coroutine[Any, Any, R]]:
+    """Декоратор для запуска синхронной функции в отдельном потоке"""
+
+    # Эта штука нужна, чтобы функция не забыла своё имя
+    @functools.wraps(func)
+    async def wrapper(*args: Any, **kwargs: Any) -> R:
+        return await asyncio.to_thread(func, *args, **kwargs)
+
+    return wrapper
+
+
+def create_reservation_text(data: dict[str, Any], user_data) -> str:
+    return (
+        f"🏛️ Зал: <b>{data.get('hall', {}).get('name', '-')}</b>\n"
+        f"📅 Дата: <b>{data.get('date', '—')}</b>\n"
+        f"🕒 Время начала: <b>{data.get('time_start', '—')}</b>\n"
+        f"🕔 Время окончания: <b>{data.get('time_end', '—')}</b>\n"
+        "\n"
+        f"<b>Контактные данные:</b>\n"
+        f"🧑 Имя: {user_data['first_name']}\n"
+        f"👥 Фамилия: {user_data['last_name'] or '-'}\n"
+        f"📱 Телефон: {user_data['phone'] or '-'}\n"
+        f"📛 Никнейм: @{user_data['username'] or '-'}\n"
+    )

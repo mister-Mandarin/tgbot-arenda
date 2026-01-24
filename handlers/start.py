@@ -19,10 +19,10 @@ async def cmd_start(message: Message, state: FSMContext):
     if not tg_user:
         return
 
-    db_user = get_user(tg_user.id)
+    db_user = await get_user(tg_user.id)
 
     if not db_user:
-        create_user(
+        await create_user(
             user_id=tg_user.id,
             first_name=tg_user.first_name or "",
             last_name=tg_user.last_name,
