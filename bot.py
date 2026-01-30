@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 from db.database import init_db
 from handlers import reservation, start
 from handlers.admin import admin_broadcast, admin_init
+from handlers.other import other
 from handlers.profile import edit, view
 from services.middleware import TrackUserActivityMiddleware
 
@@ -37,6 +38,7 @@ async def main():
     dp.include_router(view.router)
     dp.include_router(edit.router)
     dp.include_router(reservation.router)
+    dp.include_router(other.router)
     dp.update.outer_middleware(TrackUserActivityMiddleware())
 
     await dp.start_polling(bot)
